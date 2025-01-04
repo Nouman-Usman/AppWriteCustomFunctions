@@ -9,7 +9,7 @@ def handle_get(context, users):
         response = users.list()
         return context.res.json({
             "status": "success",
-            "data": "response",
+            "data": response,
             "message": "Users retrieved successfully"
         })
     except AppwriteException as err:
@@ -25,8 +25,10 @@ def handle_post(context, users):
         # Assuming the body contains email and password
         response = users.create(
             user_id='unique()',
-            email=data.get('email'),
-            password=data.get('password')
+            Name = data.get('Name'),
+            Phone = data.get('Phone'),
+            Email=data.get('email'),
+            Password=data.get('password')
         )
         return context.res.json({
             "status": "success",
