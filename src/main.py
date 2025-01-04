@@ -9,7 +9,7 @@ def handle_get(context, users):
         response = users.list()
         return context.res.json({
             "status": "success",
-            "data": response,
+            "data": "response",
             "message": "Users retrieved successfully"
         })
     except AppwriteException as err:
@@ -85,8 +85,6 @@ def main(context):
     # Basic routing
     if path == "/ping":
         return context.res.text("Pong")
-    
-    # Handle different HTTP methods
     if method == "GET":
         return handle_get(context, users)
     elif method == "POST":
