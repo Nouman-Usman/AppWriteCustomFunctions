@@ -9,7 +9,7 @@ def handle_get(context, users):
         response = users.list()
         return context.res.json({
             "status": "success",
-            "data": "response",
+            "data": response,
             "message": "Users retrieved successfully"
         })
     except AppwriteException as err:
