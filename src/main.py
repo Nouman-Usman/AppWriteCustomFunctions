@@ -5,8 +5,6 @@ import os
 
 # This Appwrite function will be executed every time your function is triggered
 def main(context):
-    # You can use the Appwrite SDK to interact with other services
-    # For this example, we're using the Users service
     client = (
         Client()
         .set_endpoint(os.environ["APPWRITE_FUNCTION_API_ENDPOINT"])
@@ -17,8 +15,6 @@ def main(context):
 
     try:
         response = users.list()
-        # Log messages and errors to the Appwrite Console
-        # These logs won't be seen by your end users
         context.log("Total users: " + str(response["total"]))
     except AppwriteException as err:
         context.error("Could not list users: " + repr(err))
@@ -33,7 +29,7 @@ def main(context):
 
     return context.res.json(
         {
-            "motto": "Build like a team of hundreds_",
+            "motto": "Hello Building it from Nouman",
             "learn": "https://appwrite.io/docs",
             "connect": "https://appwrite.io/discord",
             "getInspired": "https://builtwith.appwrite.io",
