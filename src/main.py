@@ -21,12 +21,13 @@ def handle_get(context, users):
 
 def handle_post(context, users):
     try:
-        data = context.req.body
-        # Assuming the body contains email and password
+        # Parse the JSON string into a dictionary
+        data = json.loads(context.req.body)
+        
         response = users.create(
-            # id='unique()',
-            name = data.get('Name'),
-            phone = data.get('Phone'),
+            user_id='unique()',  # This is required by Appwrite
+            name=data.get('Name'),
+            phone=data.get('Phone'),
             email=data.get('email'),
             password=data.get('password')
         )
@@ -35,6 +36,11 @@ def handle_post(context, users):
             "data": response,
             "message": "User created successfully"
         })
+    except json.JSONDecodeError as e:
+        return context.res.json({
+            "status": "error",
+            "message": "Invalid JSON in request body"
+        }, 400)
     except AppwriteException as err:
         context.error("POST request failed: " + repr(err))
         return context.res.json({
