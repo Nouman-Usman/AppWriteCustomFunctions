@@ -24,11 +24,11 @@ def handle_post(context, users):
         data = context.req.body
         # Assuming the body contains email and password
         response = users.create(
-            user_id='unique()',
-            Name = data.get('Name'),
-            Phone = data.get('Phone'),
-            Email=data.get('email'),
-            Password=data.get('password')
+            # id='unique()',
+            name = data.get('Name'),
+            phone = data.get('Phone'),
+            email=data.get('email'),
+            password=data.get('password')
         )
         return context.res.json({
             "status": "success",
