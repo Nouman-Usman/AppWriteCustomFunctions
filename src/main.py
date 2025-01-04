@@ -64,13 +64,27 @@ def handle_delete(context, users, user_id):
 
 def handle_put(context, users, user_id):
     try:
-        data = context.req.body
-        response = users.update_email(user_id, data.get('email'))
+        # Parse the JSON string into a dictionary
+        data = json.loads(context.req.body)
+        
+        # Update user data
+        if 'email' in data:
+            response = users.update_email(user_id, data['email'])
+        if 'name' in data:
+            response = users.update_name(user_id, data['name'])
+        if 'phone' in data:
+            response = users.update_phone(user_id, data['phone'])
+            
         return context.res.json({
             "status": "success",
             "data": response,
             "message": f"User {user_id} updated successfully"
         })
+    except json.JSONDecodeError as e:
+        return context.res.json({
+            "status": "error",
+            "message": "Invalid JSON in request body"
+        }, 400)
     except AppwriteException as err:
         context.error("PUT request failed: " + repr(err))
         return context.res.json({
