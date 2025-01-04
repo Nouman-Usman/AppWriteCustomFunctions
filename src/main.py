@@ -22,7 +22,9 @@ def main(context):
         context.log("Total users: " + str(response["total"]))
     except AppwriteException as err:
         context.error("Could not list users: " + repr(err))
-
+    if context.req.path == "GET":
+        return context.res.json("Hello World!")
+    
     # The req object contains the request data
     if context.req.path == "/ping":
         # Use res object to respond with text(), json(), or binary()
