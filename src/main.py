@@ -2,8 +2,74 @@ from appwrite.client import Client
 from appwrite.services.users import Users
 from appwrite.exception import AppwriteException
 import os
+import json
 
-# This Appwrite function will be executed every time your function is triggered
+def handle_get(context, users):
+    try:
+        response = users.list()
+        return context.res.json({
+            "status": "success",
+            "data": response,
+            "message": "Users retrieved successfully"
+        })
+    except AppwriteException as err:
+        context.error("GET request failed: " + repr(err))
+        return context.res.json({
+            "status": "error",
+            "message": str(err)
+        }, 500)
+
+def handle_post(context, users):
+    try:
+        data = context.req.body
+        # Assuming the body contains email and password
+        response = users.create(
+            user_id='unique()',
+            email=data.get('email'),
+            password=data.get('password')
+        )
+        return context.res.json({
+            "status": "success",
+            "data": response,
+            "message": "User created successfully"
+        })
+    except AppwriteException as err:
+        context.error("POST request failed: " + repr(err))
+        return context.res.json({
+            "status": "error",
+            "message": str(err)
+        }, 500)
+
+def handle_delete(context, users, user_id):
+    try:
+        response = users.delete(user_id)
+        return context.res.json({
+            "status": "success",
+            "message": f"User {user_id} deleted successfully"
+        })
+    except AppwriteException as err:
+        context.error("DELETE request failed: " + repr(err))
+        return context.res.json({
+            "status": "error",
+            "message": str(err)
+        }, 500)
+
+def handle_put(context, users, user_id):
+    try:
+        data = context.req.body
+        response = users.update_email(user_id, data.get('email'))
+        return context.res.json({
+            "status": "success",
+            "data": response,
+            "message": f"User {user_id} updated successfully"
+        })
+    except AppwriteException as err:
+        context.error("PUT request failed: " + repr(err))
+        return context.res.json({
+            "status": "error",
+            "message": str(err)
+        }, 500)
+
 def main(context):
     client = (
         Client()
@@ -13,25 +79,30 @@ def main(context):
     )
     users = Users(client)
 
-    try:
-        response = users.list()
-        context.log("Total users: " + str(response["total"]))
-    except AppwriteException as err:
-        context.error("Could not list users: " + repr(err))
-    if context.req.path == "GET":
-        return context.res.json("Hello World!")
+    method = context.req.method
+    path = context.req.path
     
-    # The req object contains the request data
-    if context.req.path == "/ping":
-        # Use res object to respond with text(), json(), or binary()
-        # Don't forget to return a response!
+    # Basic routing
+    if path == "/ping":
         return context.res.text("Pong")
-
-    return context.res.json(
-        {
-            "motto": "Hello Building it from Nouman",
-            "learn": "https://appwrite.io/docs",
-            "connect": "https://appwrite.io/discord",
-            "getInspired": "https://builtwith.appwrite.io",
-        }
-    )
+    
+    # Handle different HTTP methods
+    if method == "GET":
+        return handle_get(context, users)
+    elif method == "POST":
+        return handle_post(context, users)
+    elif method == "DELETE":
+        user_id = context.req.query.get('user_id')
+        if not user_id:
+            return context.res.json({"status": "error", "message": "user_id is required"}, 400)
+        return handle_delete(context, users, user_id)
+    elif method == "PUT":
+        user_id = context.req.query.get('user_id')
+        if not user_id:
+            return context.res.json({"status": "error", "message": "user_id is required"}, 400)
+        return handle_put(context, users, user_id)
+    
+    return context.res.json({
+        "status": "error",
+        "message": "Method not supported"
+    }, 405)
